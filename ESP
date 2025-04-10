@@ -1,0 +1,160 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
+
+-- ESP settings
+local ESPSettings = {
+    BoxColor = Color3.fromRGB(0, 255, 0),
+    TracerColor = Color3.fromRGB(255, 255, 255),
+    TextColor = Color3.fromRGB(255, 255, 255),
+    BoxThickness = 2,
+    TracerThickness = 1,
+    UseTeamCheck = false,
+    Enabled = false
+}
+
+local ESPObjects = {}
+
+local function createESP(player)
+    if ESPObjects[player] then return end
+
+    local box = Drawing.new("Square")
+    box.Color = ESPSettings.BoxColor
+    box.Thickness = ESPSettings.BoxThickness
+    box.Filled = false
+    box.Visible = false
+
+    local tracer = Drawing.new("Line")
+    tracer.Color = ESPSettings.TracerColor
+    tracer.Thickness = ESPSettings.TracerThickness
+    tracer.Visible = false
+
+    local nameTag = Drawing.new("Text")
+    nameTag.Color = ESPSettings.TextColor
+    nameTag.Size = 16
+    nameTag.Center = true
+    nameTag.Outline = true
+    nameTag.Visible = false
+
+    ESPObjects[player] = {Box = box, Tracer = tracer, NameTag = nameTag}
+end
+
+local function removeESP(player)
+    if ESPObjects[player] then
+        for _, drawing in pairs(ESPObjects[player]) do
+            drawing:Remove()
+        end
+        ESPObjects[player] = nil
+    end
+end
+
+local function isEnemy(player)
+    if not ESPSettings.UseTeamCheck then return true end
+    return player.Team ~= LocalPlayer.Team
+end
+
+Players.PlayerAdded:Connect(createESP)
+Players.PlayerRemoving:Connect(removeESP)
+
+for _, player in pairs(Players:GetPlayers()) do
+    if player ~= LocalPlayer then
+        createESP(player)
+    end
+end
+
+RunService.RenderStepped:Connect(function()
+    if not ESPSettings.Enabled then
+        for _, drawings in pairs(ESPObjects) do
+            for _, obj in pairs(drawings) do
+                obj.Visible = false
+            end
+        end
+        return
+    end
+
+    for player, drawings in pairs(ESPObjects) do
+        local char = player.Character
+        local head = char and char:FindFirstChild("Head")
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+
+        if char and head and hrp and player ~= LocalPlayer and isEnemy(player) then
+            local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+            local headPos = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
+            local feetPos = Camera:WorldToViewportPoint(hrp.Position - Vector3.new(0, 2.5, 0))
+
+            local height = math.abs(headPos.Y - feetPos.Y)
+            local width = height / 2.5
+
+            if onScreen then
+                drawings.Box.Size = Vector2.new(width, height)
+                drawings.Box.Position = Vector2.new(pos.X - width/2, pos.Y - height/2)
+                drawings.Box.Visible = true
+
+                drawings.Tracer.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+                drawings.Tracer.To = Vector2.new(pos.X, pos.Y + height/2)
+                drawings.Tracer.Visible = true
+
+                drawings.NameTag.Position = Vector2.new(pos.X, pos.Y - height/2 - 16)
+                drawings.NameTag.Text = player.Name
+                drawings.NameTag.Visible = true
+            else
+                drawings.Box.Visible = false
+                drawings.Tracer.Visible = false
+                drawings.NameTag.Visible = false
+            end
+        else
+            drawings.Box.Visible = false
+            drawings.Tracer.Visible = false
+            drawings.NameTag.Visible = false
+        end
+    end
+end)
+
+-- 📱 Create Mobile + PC Friendly UI
+local function createESPUI()
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "ESP_ToggleGUI"
+    gui.ResetOnSpawn = false
+    gui.IgnoreGuiInset = true
+    gui.Parent = game:GetService("CoreGui")
+
+    local frame = Instance.new("Frame", gui)
+    frame.Size = UDim2.new(0, 140, 0, 100)
+    frame.Position = UDim2.new(0, 50, 0, 150)
+    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    frame.BorderSizePixel = 0
+    frame.Active = true
+    frame.Draggable = true
+
+    local uiCorner = Instance.new("UICorner", frame)
+    uiCorner.CornerRadius = UDim.new(0, 10)
+
+    local onButton = Instance.new("TextButton", frame)
+    onButton.Size = UDim2.new(0.9, 0, 0, 40)
+    onButton.Position = UDim2.new(0.05, 0, 0.1, 0)
+    onButton.Text = "TSK&TDB - ESP ON"
+    onButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+    onButton.TextColor3 = Color3.new(1, 1, 1)
+    onButton.TextScaled = true
+    onButton.Font = Enum.Font.SourceSansBold
+
+    local offButton = Instance.new("TextButton", frame)
+    offButton.Size = UDim2.new(0.9, 0, 0, 40)
+    offButton.Position = UDim2.new(0.05, 0, 0.55, 0)
+    offButton.Text = "TSK&TDB - ESP OFF"
+    offButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+    offButton.TextColor3 = Color3.new(1, 1, 1)
+    offButton.TextScaled = true
+    offButton.Font = Enum.Font.SourceSansBold
+
+    onButton.MouseButton1Click:Connect(function()
+        ESPSettings.Enabled = true
+    end)
+
+    offButton.MouseButton1Click:Connect(function()
+        ESPSettings.Enabled = false
+    end)
+end
+
+createESPUI()
