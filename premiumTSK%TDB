@@ -1,75 +1,48 @@
--- Premium Key List
-local validKeys = {"premiumKey1", "premiumKey2", "premiumKey3"}  -- Replace with your actual keys
+-- Full Script for Premium Users with Yellow Key
 
--- Usernames with access
-local allowedUsers = {"Player1", "Player2", "Player3", "TDB_KingDarkness"}  -- Added TDB_KingDarkness
+-- Create a list of usernames that should get premium access
+local premiumUsers = {
+    "TDB_Kingdarkness",  -- Add your username here for premium access
+    -- You can add more usernames here:
+    -- "OtherUser1",
+    -- "OtherUser2",
+}
 
--- Function to check if the key is valid
-local function checkPremiumAccess(key)
-    for _, validKey in ipairs(validKeys) do
-        if key == validKey then
-            return true
-        end
+-- Ensure the necessary services are loaded
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+-- Function to notify players (can be expanded for UI notifications)
+local function notifyPlayer(player, message)
+    local notificationEvent = ReplicatedStorage:FindFirstChild("PremiumNotification")
+    if not notificationEvent then
+        notificationEvent = Instance.new("RemoteEvent")
+        notificationEvent.Name = "PremiumNotification"
+        notificationEvent.Parent = ReplicatedStorage
     end
-    return false
+    notificationEvent:FireClient(player, message)
 end
 
--- Function to check if the player is allowed
-local function isUserAllowed(player)
-    for _, user in ipairs(allowedUsers) do
-        if player.Name == user then
-            return true
+-- When a player joins the game, check if they are on the premium list
+Players.PlayerAdded:Connect(function(player)
+    -- Check if player is in the premiumUsers list
+    for _, username in pairs(premiumUsers) do
+        if player.Name == username then
+            -- Grant premium access by giving the player a yellow key
+            local yellowKey = Instance.new("Tool")
+            yellowKey.Name = "YellowKey"
+            yellowKey.Parent = player.Backpack
+            yellowKey.BrickColor = BrickColor.Yellow()  -- Set the key color to yellow
+            
+            -- Optionally, you can add more features here for premium users, such as custom abilities.
+
+            -- Notify the player they have received premium access
+            notifyPlayer(player, "You have received a yellow key as a premium user!")
+
+            print(player.Name .. " has received premium access with a yellow key.")
         end
     end
-    return false
-end
-
--- GUI for Key Input (Prompt the user for key)
-local player = game.Players.LocalPlayer
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = player:WaitForChild("PlayerGui")
-
--- Create the key input TextBox
-local keyInputBox = Instance.new("TextBox")
-keyInputBox.Size = UDim2.new(0, 400, 0, 50)  -- Make the box big enough for the key
-keyInputBox.Position = UDim2.new(0.5, -200, 0.5, -25)  -- Center the box
-keyInputBox.PlaceholderText = "Enter your premium key"
-keyInputBox.Parent = screenGui
-
--- Create the submit button
-local submitButton = Instance.new("TextButton")
-submitButton.Size = UDim2.new(0, 200, 0, 50)
-submitButton.Position = UDim2.new(0.5, -100, 0.5, 25)  -- Place it below the text box
-submitButton.Text = "Submit"
-submitButton.Parent = screenGui
-
--- Function to handle the key submission
-submitButton.MouseButton1Click:Connect(function()
-    local playerKey = keyInputBox.Text  -- Get the text from the input box
-
-    -- Check if the key is valid
-    if not checkPremiumAccess(playerKey) then
-        print("Invalid key! You need a premium key to access this script.")
-        screenGui:Destroy()  -- Remove the UI if the key is invalid
-        return  -- Stops the script if the key is invalid
-    end
-
-    -- Check if the player is allowed
-    if not isUserAllowed(player) then
-        print("You are not authorized to access this script.")
-        screenGui:Destroy()  -- Remove the UI if the player is not authorized
-        return  -- Stops the script if the user is not allowed
-    end
-
-    -- If both key and user access are valid, continue to the premium version of the script
-    print("Access granted to premium content!")
-
-    -- Remove the UI once access is granted
-    screenGui:Destroy()
-
-    -- Now proceed with the rest of the premium script (e.g., changing part color)
-    local part = game.Workspace.Part  -- Replace with your actual part or object reference
-    part.BrickColor = BrickColor.new("Bright yellow")
-
-    -- Add the rest of your premium functionality here
 end)
+
+-- Example of additional features for premium users
+-- You can add features like giving them exclusive tools, abilities, or other advantages.
