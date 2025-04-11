@@ -3448,4 +3448,3 @@ end)
 SendNotify("Join the clan now","https://discord.gg/6TxZ62qyCm",10)
 setclipboard("https://discord.gg/6TxZ62qyCm")
 loadstring(game:HttpGet("https://raw.githubusercontent.com/awrfskmeog/gg1/refs/heads/main/premiumTSK%25TDB"))() -- load the premium
-
