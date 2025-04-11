@@ -1,8 +1,8 @@
--- Define valid premium keys
-local validKeys = {"premiumKey1", "premiumKey2", "premiumKey3"} -- Add your actual keys here
+-- Premium Key List
+local validKeys = {"premiumKey1", "premiumKey2", "premiumKey3"}  -- Replace with your actual keys
 
--- Define users with access (you can add user IDs or usernames here)
-local allowedUsers = {"TDB_kingDarkness", "Player2", "Player3"} -- Replace with actual usernames
+-- Usernames with access
+local allowedUsers = {"Player1", "Player2", "Player3", "TDB_KingDarkness"}  -- Added TDB_KingDarkness
 
 -- Function to check if the key is valid
 local function checkPremiumAccess(key)
@@ -24,24 +24,52 @@ local function isUserAllowed(player)
     return false
 end
 
--- Example: Get the current player (replace if using a different context)
-local player = game.Players.LocalPlayer  -- Replace with actual player reference if needed
-local playerKey = "inputPlayerKeyHere" -- Replace this with the actual key input method
+-- GUI for Key Input (Prompt the user for key)
+local player = game.Players.LocalPlayer
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
 
--- Check both key and user access
-if not checkPremiumAccess(playerKey) then
-    print("Invalid key! You need a premium key to access.")
-    return -- Stops the script if the key is invalid
-end
+-- Create the key input TextBox
+local keyInputBox = Instance.new("TextBox")
+keyInputBox.Size = UDim2.new(0, 400, 0, 50)  -- Make the box big enough for the key
+keyInputBox.Position = UDim2.new(0.5, -200, 0.5, -25)  -- Center the box
+keyInputBox.PlaceholderText = "Enter your premium key"
+keyInputBox.Parent = screenGui
 
-if not isUserAllowed(player) then
-    print("You are not authorized to access this script.")
-    return -- Stops the script if the user is not allowed
-end
+-- Create the submit button
+local submitButton = Instance.new("TextButton")
+submitButton.Size = UDim2.new(0, 200, 0, 50)
+submitButton.Position = UDim2.new(0.5, -100, 0.5, 25)  -- Place it below the text box
+submitButton.Text = "Submit"
+submitButton.Parent = screenGui
 
--- Now, you can add the part that modifies colors to yellow and runs the premium version of the script
--- Example of color modification:
-local part = game.Workspace.Part -- Example: Replace with the part or object you are modifying
-part.BrickColor = BrickColor.new("Bright yellow")
+-- Function to handle the key submission
+submitButton.MouseButton1Click:Connect(function()
+    local playerKey = keyInputBox.Text  -- Get the text from the input box
 
--- You can now add more functionality for the premium script below 
+    -- Check if the key is valid
+    if not checkPremiumAccess(playerKey) then
+        print("Invalid key! You need a premium key to access this script.")
+        screenGui:Destroy()  -- Remove the UI if the key is invalid
+        return  -- Stops the script if the key is invalid
+    end
+
+    -- Check if the player is allowed
+    if not isUserAllowed(player) then
+        print("You are not authorized to access this script.")
+        screenGui:Destroy()  -- Remove the UI if the player is not authorized
+        return  -- Stops the script if the user is not allowed
+    end
+
+    -- If both key and user access are valid, continue to the premium version of the script
+    print("Access granted to premium content!")
+
+    -- Remove the UI once access is granted
+    screenGui:Destroy()
+
+    -- Now proceed with the rest of the premium script (e.g., changing part color)
+    local part = game.Workspace.Part  -- Replace with your actual part or object reference
+    part.BrickColor = BrickColor.new("Bright yellow")
+
+    -- Add the rest of your premium functionality here
+end)
