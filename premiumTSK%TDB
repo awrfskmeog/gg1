@@ -44,4 +44,4 @@ end
 local part = game.Workspace.Part -- Example: Replace with the part or object you are modifying
 part.BrickColor = BrickColor.new("Bright yellow")
 
--- You can now add more functionality for the premium script below
+-- You can now add more functionality for the premium script below 
