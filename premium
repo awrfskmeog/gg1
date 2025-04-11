@@ -19,7 +19,7 @@ local function checkPremium()
     else
         Window:AddLabel("Free Version")
         Window:AddButton("Upgrade to Premium for More Features", function()
-            setclipboard("add me discord: _kingdakrness_")
+            setclipboard(" add me discord: _kingdakrness_ ")
         end)
     end
 end
