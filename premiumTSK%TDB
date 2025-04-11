@@ -1,103 +1,43 @@
-local PremiumUsernames = {
-    "TDB_KingDarkness", "User2", "User3", "User4"  -- Replace with actual usernames
-}
+-- Define valid premium keys
+local validKeys = {"premiumKey1", "premiumKey2", "premiumKey3"} -- Add your actual keys here
 
-local PremiumKeys = {
-    ["abc123"] = true,
-    ["coolkey2025"] = true,
-    ["vippass"] = true,
-}
+-- Define users with access (you can add user IDs or usernames here)
+local allowedUsers = {"TDB_KingDarkness", "Player2", "Player3"} -- Replace with actual usernames
 
-local PremiumUsers = {}
-
-local Players = game:GetService("Players")
-
--- Function to prompt for premium key if user isn't premium
-local function promptPremiumKey(player)
-    local playerGui = player:WaitForChild("PlayerGui")
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "PremiumPrompt"
-    screenGui.ResetOnSpawn = false
-    screenGui.Parent = playerGui
-
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 300, 0, 160)
-    frame.Position = UDim2.new(0.5, -150, 0.5, -80)
-    frame.BackgroundColor3 = Color3.fromRGB(255, 255, 0)  -- Yellow background for premium
-    frame.BorderSizePixel = 0
-    frame.Parent = screenGui
-
-    local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, 0, 0.25, 0)
-    title.Position = UDim2.new(0, 0, 0, 0)
-    title.BackgroundTransparency = 1
-    title.Text = "Enter Premium Key"
-    title.TextColor3 = Color3.fromRGB(0, 0, 0)  -- Black text for contrast
-    title.Font = Enum.Font.SourceSansBold
-    title.TextScaled = true
-    title.Parent = frame
-
-    local textBox = Instance.new("TextBox")
-    textBox.Size = UDim2.new(0.8, 0, 0.25, 0)
-    textBox.Position = UDim2.new(0.1, 0, 0.35, 0)
-    textBox.PlaceholderText = "Your Key Here"
-    textBox.Text = ""
-    textBox.Font = Enum.Font.SourceSans
-    textBox.TextScaled = true
-    textBox.TextColor3 = Color3.fromRGB(0, 0, 0)
-    textBox.BackgroundColor3 = Color3.fromRGB(255, 255, 0)  -- Yellow background for input
-    textBox.Parent = frame
-
-    local button = Instance.new("TextButton")
-    button.Size = UDim2.new(0.5, 0, 0.2, 0)
-    button.Position = UDim2.new(0.25, 0, 0.7, 0)
-    button.Text = "Submit"
-    button.Font = Enum.Font.SourceSansBold
-    button.TextScaled = true
-    button.TextColor3 = Color3.fromRGB(255, 255, 255)  -- White text for button
-    button.BackgroundColor3 = Color3.fromRGB(255, 255, 0)  -- Yellow button for premium
-    button.Parent = frame
-
-    button.MouseButton1Click:Connect(function()
-        local inputKey = textBox.Text
-        if PremiumKeys[inputKey] then
-            PremiumUsers[player.UserId] = true
-            screenGui:Destroy()
-            print("[PREMIUM] " .. player.Name .. " entered a valid key.")
-        else
-            button.Text = "❌ Invalid Key"
-            wait(1)
-            button.Text = "Submit"
+-- Function to check if the key is valid
+local function checkPremiumAccess(key)
+    for _, validKey in ipairs(validKeys) do
+        if key == validKey then
+            return true
         end
-    end)
+    end
+    return false
 end
 
-Players.PlayerAdded:Connect(function(player)
-    if table.find(PremiumUsernames, player.Name) then
-        -- Show premium GUI if the player is on the premium username list
-        PremiumUsers[player.UserId] = true
-    else
-        -- For regular users, prompt for key input
-        promptPremiumKey(player)
+-- Function to check if the player is allowed
+local function isUserAllowed(player)
+    for _, user in ipairs(allowedUsers) do
+        if player.Name == user then
+            return true
+        end
     end
+    return false
+end
 
-    -- Check if the user is premium after 30 seconds
-    local attempts = 0
-    repeat
-        wait(1)
-        attempts += 1
-    until PremiumUsers[player.UserId] or attempts > 30
+-- Example: Check if the player has premium access
+local player = game.Players.LocalPlayer  -- Replace with actual player reference if needed
+local playerKey = "inputPlayerKeyHere" -- Replace with how the player enters their key
 
-    -- Execute premium-specific code or standard code
-    if PremiumUsers[player.UserId] then
-        print(player.Name .. " has premium access.")
-        -- Insert premium-only code here
-    else
-        print(player.Name .. " is using the standard version.")
-        -- Insert standard functionality here
-    end
-end)
+-- Check both key and user access
+if not checkPremiumAccess(playerKey) then
+    print("Invalid key! You need a premium key to access.")
+    return -- Stops the script if the key is invalid
+end
 
--- Fetch and run your premium script from GitHub directly
-local premiumScriptLink = "https://raw.githubusercontent.com/awrfskmeog/gg1/refs/heads/main/premiumTSK%25TDB"
-loadstring(game:HttpGet(premiumScriptLink))()
+if not isUserAllowed(player) then
+    print("You are not authorized to access this script.")
+    return -- Stops the script if the user is not allowed
+end
+
+-- If both the key and user are valid, the script continues
+print("Access granted to premium content!")
