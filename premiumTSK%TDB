@@ -2,7 +2,7 @@
 local validKeys = {"premiumKey1", "premiumKey2", "premiumKey3"} -- Add your actual keys here
 
 -- Define users with access (you can add user IDs or usernames here)
-local allowedUsers = {"TDB_kingDarknes", "Player2", "Player3"} -- Replace with actual usernames
+local allowedUsers = {"TDB_kingDarkness", "Player2", "Player3"} -- Replace with actual usernames
 
 -- Function to check if the key is valid
 local function checkPremiumAccess(key)
