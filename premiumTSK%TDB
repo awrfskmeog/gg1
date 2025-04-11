@@ -1,98 +1,89 @@
--- Premium Users List
-local premiumUsers = {
-    "TDB_Kingdarkness",  -- Add your username here for premium access
-    -- You can add more usernames here:
-    -- "OtherUser1",
-    -- "OtherUser2",
-}
-
 -- Services
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
+local HttpService = game:GetService("HttpService")
+local player = Players.LocalPlayer
 
--- Function to give Premium Users the Key GUI
-local function createKeyGUI(player)
-    -- Create a screen GUI for the player
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Parent = player:WaitForChild("PlayerGui")
+-- GUI Setup
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+screenGui.Name = "PremiumGUI"
 
-    -- Create the "Key" button
-    local keyButton = Instance.new("TextButton")
-    keyButton.Name = "KeyButton"
-    keyButton.Size = UDim2.new(0, 200, 0, 50)  -- Size of the button
-    keyButton.Position = UDim2.new(0.5, -100, 0.8, 0)  -- Position on screen
-    keyButton.BackgroundColor3 = Color3.fromRGB(255, 255, 0)  -- Yellow color
-    keyButton.Text = "Key"
-    keyButton.TextColor3 = Color3.fromRGB(0, 0, 0)  -- Black text
-    keyButton.Font = Enum.Font.SourceSans
-    keyButton.TextSize = 24
-    keyButton.Parent = screenGui
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0, 300, 0, 150)
+frame.Position = UDim2.new(0.5, -150, 0.5, -75)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BorderSizePixel = 0
 
-    -- Create a TextBox for code input
-    local codeInput = Instance.new("TextBox")
-    codeInput.Name = "CodeInput"
-    codeInput.Size = UDim2.new(0, 200, 0, 50)
-    codeInput.Position = UDim2.new(0.5, -100, 0.7, 0)
-    codeInput.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    codeInput.PlaceholderText = "Enter Code (123)"
-    codeInput.TextColor3 = Color3.fromRGB(0, 0, 0)
-    codeInput.Font = Enum.Font.SourceSans
-    codeInput.TextSize = 24
-    codeInput.Parent = screenGui
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundTransparency = 1
+title.Text = "Enter Premium Key"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 20
 
-    -- Function to handle when the player clicks the Key button
-    keyButton.MouseButton1Click:Connect(function()
-        local enteredCode = codeInput.Text
-        -- Check if the entered code is "123"
-        if enteredCode == "123" then
-            -- Unlock door or perform other actions here
-            print(player.Name .. " has entered the correct code!")
+local textbox = Instance.new("TextBox", frame)
+textbox.Size = UDim2.new(0.9, 0, 0, 30)
+textbox.Position = UDim2.new(0.05, 0, 0.4, 0)
+textbox.PlaceholderText = "Enter your key here..."
+textbox.Text = ""
+textbox.Font = Enum.Font.Gotham
+textbox.TextSize = 16
+textbox.TextColor3 = Color3.fromRGB(0, 0, 0)
+textbox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 
-            -- Example: Unlock a door
-            local yellowDoor = Workspace:FindFirstChild("YellowDoor")
-            if yellowDoor then
-                yellowDoor.CFrame = yellowDoor.CFrame * CFrame.new(0, 10, 0)  -- Lift the door up
-                yellowDoor.CanCollide = false  -- Make the door non-collidable
-                print("Yellow door opened!")
-            end
+local submitButton = Instance.new("TextButton", frame)
+submitButton.Size = UDim2.new(0.9, 0, 0, 30)
+submitButton.Position = UDim2.new(0.05, 0, 0.7, 0)
+submitButton.Text = "Submit"
+submitButton.Font = Enum.Font.GothamBold
+submitButton.TextSize = 16
+submitButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+submitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 
-            -- Optionally, hide the GUI once the key is used
-            screenGui:Destroy()
+local statusLabel = Instance.new("TextLabel", frame)
+statusLabel.Size = UDim2.new(1, 0, 0, 20)
+statusLabel.Position = UDim2.new(0, 0, 1, -20)
+statusLabel.BackgroundTransparency = 1
+statusLabel.Text = ""
+statusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+statusLabel.Font = Enum.Font.Gotham
+statusLabel.TextSize = 14
 
-            -- Notify the player that they've unlocked the Yellow Door
-            local notificationEvent = ReplicatedStorage:FindFirstChild("PremiumNotification")
-            if not notificationEvent then
-                notificationEvent = Instance.new("RemoteEvent")
-                notificationEvent.Name = "PremiumNotification"
-                notificationEvent.Parent = ReplicatedStorage
-            end
-            notificationEvent:FireClient(player, "You have unlocked the Yellow Door with the Key!")
-        else
-            -- If the code is incorrect, notify the player
-            notificationEvent:FireClient(player, "Incorrect code! Please try again.")
-        end
-    end)
+-- GitHub Raw Key List URL (Replace this with your own!)
+local keyListURL = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/keys.txt"
+
+-- Function to check premium key
+local function checkKey(key)
+	local success, response = pcall(function()
+		return HttpService:GetAsync(keyListURL)
+	end)
+
+	if success and response then
+		if string.find(response, key) then
+			statusLabel.Text = "✅ Access Granted!"
+			statusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+			wait(1)
+			screenGui:Destroy()
+
+			-- 💎 Load Premium Features Here
+			print("Premium unlocked for " .. player.Name)
+		else
+			statusLabel.Text = "❌ Invalid Key"
+			statusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+		end
+	else
+		statusLabel.Text = "⚠️ Failed to fetch key list"
+		statusLabel.TextColor3 = Color3.fromRGB(255, 165, 0)
+	end
 end
 
--- When a player joins the game, check if they are on the premium list
-Players.PlayerAdded:Connect(function(player)
-    -- Check if player is in the premiumUsers list
-    for _, username in pairs(premiumUsers) do
-        if player.Name == username then
-            -- Grant premium access by creating the Key GUI
-            createKeyGUI(player)
-
-            -- Notify the player they have received the Key GUI
-            local notificationEvent = ReplicatedStorage:FindFirstChild("PremiumNotification")
-            if not notificationEvent then
-                notificationEvent = Instance.new("RemoteEvent")
-                notificationEvent.Name = "PremiumNotification"
-                notificationEvent.Parent = ReplicatedStorage
-            end
-            notificationEvent:FireClient(player, "You have received the Key!")
-
-            print(player.Name .. " has received the Key GUI.")
-        end
-    end
+-- Submit button click
+submitButton.MouseButton1Click:Connect(function()
+	local inputKey = textbox.Text
+	if inputKey ~= "" then
+		checkKey(inputKey)
+	else
+		statusLabel.Text = "Please enter a key!"
+		statusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+	end
 end)
