@@ -2,7 +2,7 @@
 local validKeys = {"premiumKey1", "premiumKey2", "premiumKey3"} -- Add your actual keys here
 
 -- Define users with access (you can add user IDs or usernames here)
-local allowedUsers = {"TDB_KingDarkness", "Player2", "Player3"} -- Replace with actual usernames
+local allowedUsers = {"TDB_kingDarkness", "Player2", "Player3"} -- Replace with actual usernames
 
 -- Function to check if the key is valid
 local function checkPremiumAccess(key)
@@ -24,9 +24,9 @@ local function isUserAllowed(player)
     return false
 end
 
--- Example: Check if the player has premium access
+-- Example: Get the current player (replace if using a different context)
 local player = game.Players.LocalPlayer  -- Replace with actual player reference if needed
-local playerKey = "inputPlayerKeyHere" -- Replace with how the player enters their key
+local playerKey = "inputPlayerKeyHere" -- Replace this with the actual key input method
 
 -- Check both key and user access
 if not checkPremiumAccess(playerKey) then
@@ -39,5 +39,9 @@ if not isUserAllowed(player) then
     return -- Stops the script if the user is not allowed
 end
 
--- If both the key and user are valid, the script continues
-print("Access granted to premium content!")
+-- Now, you can add the part that modifies colors to yellow and runs the premium version of the script
+-- Example of color modification:
+local part = game.Workspace.Part -- Example: Replace with the part or object you are modifying
+part.BrickColor = BrickColor.new("Bright yellow")
+
+-- You can now add more functionality for the premium script below
