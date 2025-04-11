@@ -1,0 +1,100 @@
+-- Define premium usernames
+local PremiumUsernames = {
+    "TDB_KingDarkness", "User2", "User3", "User4" -- Replace with actual usernames
+}
+
+-- Define premium keys
+local PremiumKeys = {
+    ["abc123"] = true,
+    ["coolkey2025"] = true,
+    ["vippass"] = true,
+}
+
+local PremiumUsers = {}
+
+local Players = game:GetService("Players")
+
+-- Function to prompt for premium key
+local function promptPremiumKey(player)
+    local playerGui = player:WaitForChild("PlayerGui")
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "PremiumPrompt"
+    screenGui.ResetOnSpawn = false
+    screenGui.Parent = playerGui
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 300, 0, 160)
+    frame.Position = UDim2.new(0.5, -150, 0.5, -80)
+    frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    frame.BorderSizePixel = 0
+    frame.Parent = screenGui
+
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0.25, 0)
+    title.Position = UDim2.new(0, 0, 0, 0)
+    title.BackgroundTransparency = 1
+    title.Text = "Enter Premium Key"
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.Font = Enum.Font.SourceSansBold
+    title.TextScaled = true
+    title.Parent = frame
+
+    local textBox = Instance.new("TextBox")
+    textBox.Size = UDim2.new(0.8, 0, 0.25, 0)
+    textBox.Position = UDim2.new(0.1, 0, 0.35, 0)
+    textBox.PlaceholderText = "Your Key Here"
+    textBox.Text = ""
+    textBox.Font = Enum.Font.SourceSans
+    textBox.TextScaled = true
+    textBox.TextColor3 = Color3.fromRGB(0, 0, 0)
+    textBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    textBox.Parent = frame
+
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0.5, 0, 0.2, 0)
+    button.Position = UDim2.new(0.25, 0, 0.7, 0)
+    button.Text = "Submit"
+    button.Font = Enum.Font.SourceSansBold
+    button.TextScaled = true
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+    button.Parent = frame
+
+    button.MouseButton1Click:Connect(function()
+        local inputKey = textBox.Text
+        if PremiumKeys[inputKey] then
+            PremiumUsers[player.UserId] = true
+            screenGui:Destroy()
+            print("[PREMIUM] " .. player.Name .. " entered a valid key.")
+        else
+            button.Text = "❌ Invalid Key"
+            wait(1)
+            button.Text = "Submit"
+        end
+    end)
+end
+
+Players.PlayerAdded:Connect(function(player)
+    if table.find(PremiumUsernames, player.Name) then
+        -- Show premium GUI if the player is on the premium username list
+        promptPremiumKey(player)
+    else
+        -- Regular user flow
+    end
+
+    -- Wait for key input or timeout after 30 seconds
+    local attempts = 0
+    repeat
+        wait(1)
+        attempts += 1
+    until PremiumUsers[player.UserId] or attempts > 30
+
+    -- Check if the user is premium
+    if PremiumUsers[player.UserId] then
+        print(player.Name .. " has premium access.")
+        -- Add premium-specific functionalities here
+    else
+        print(player.Name .. " is using the standard version.")
+        -- Add standard functionalities here
+    end
+end)
