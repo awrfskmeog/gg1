@@ -1,0 +1,33 @@
+-- Add premium system here (copy full premium code block)
+
+local PremiumKeys = {
+    ["key123"] = true,
+    ["prokey"] = true
+}
+local PremiumUsers = {}
+
+-- Prompt GUI (see full version above)
+-- Then after prompt, do this:
+
+local function checkPremium()
+    if PremiumUsers[game.Players.LocalPlayer.UserId] then
+        -- Premium UI / features
+        Window:AddLabel("🌟 Premium User!")
+        Window:AddButton("God Mode", function()
+            -- premium function here
+        end)
+    else
+        Window:AddLabel("Free Version")
+        Window:AddButton("Upgrade to Premium for More Features", function()
+            setclipboard("discord.gg/yourserver")
+        end)
+    end
+end
+
+game.Players.PlayerAdded:Connect(function(player)
+    if player == game.Players.LocalPlayer then
+        promptPremiumKey(player)
+        wait(5) -- wait for them to enter key
+        checkPremium()
+    end
+end)
