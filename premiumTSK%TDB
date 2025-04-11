@@ -1,9 +1,7 @@
--- Define premium usernames
 local PremiumUsernames = {
-    "TDB_KingDarkness", "User2", "User3", "User4" -- Replace with actual usernames
+    "TDB_KingDarkness", "User2", "User3", "User4"  -- Replace with actual usernames
 }
 
--- Define premium keys
 local PremiumKeys = {
     ["abc123"] = true,
     ["coolkey2025"] = true,
@@ -14,7 +12,7 @@ local PremiumUsers = {}
 
 local Players = game:GetService("Players")
 
--- Function to prompt for premium key
+-- Function to prompt for premium key if user isn't premium
 local function promptPremiumKey(player)
     local playerGui = player:WaitForChild("PlayerGui")
     local screenGui = Instance.new("ScreenGui")
@@ -25,7 +23,7 @@ local function promptPremiumKey(player)
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(0, 300, 0, 160)
     frame.Position = UDim2.new(0.5, -150, 0.5, -80)
-    frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    frame.BackgroundColor3 = Color3.fromRGB(255, 255, 0)  -- Yellow background for premium
     frame.BorderSizePixel = 0
     frame.Parent = screenGui
 
@@ -34,7 +32,7 @@ local function promptPremiumKey(player)
     title.Position = UDim2.new(0, 0, 0, 0)
     title.BackgroundTransparency = 1
     title.Text = "Enter Premium Key"
-    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.TextColor3 = Color3.fromRGB(0, 0, 0)  -- Black text for contrast
     title.Font = Enum.Font.SourceSansBold
     title.TextScaled = true
     title.Parent = frame
@@ -47,7 +45,7 @@ local function promptPremiumKey(player)
     textBox.Font = Enum.Font.SourceSans
     textBox.TextScaled = true
     textBox.TextColor3 = Color3.fromRGB(0, 0, 0)
-    textBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    textBox.BackgroundColor3 = Color3.fromRGB(255, 255, 0)  -- Yellow background for input
     textBox.Parent = frame
 
     local button = Instance.new("TextButton")
@@ -56,8 +54,8 @@ local function promptPremiumKey(player)
     button.Text = "Submit"
     button.Font = Enum.Font.SourceSansBold
     button.TextScaled = true
-    button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    button.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)  -- White text for button
+    button.BackgroundColor3 = Color3.fromRGB(255, 255, 0)  -- Yellow button for premium
     button.Parent = frame
 
     button.MouseButton1Click:Connect(function()
@@ -77,24 +75,29 @@ end
 Players.PlayerAdded:Connect(function(player)
     if table.find(PremiumUsernames, player.Name) then
         -- Show premium GUI if the player is on the premium username list
-        promptPremiumKey(player)
+        PremiumUsers[player.UserId] = true
     else
-        -- Regular user flow
+        -- For regular users, prompt for key input
+        promptPremiumKey(player)
     end
 
-    -- Wait for key input or timeout after 30 seconds
+    -- Check if the user is premium after 30 seconds
     local attempts = 0
     repeat
         wait(1)
         attempts += 1
     until PremiumUsers[player.UserId] or attempts > 30
 
-    -- Check if the user is premium
+    -- Execute premium-specific code or standard code
     if PremiumUsers[player.UserId] then
         print(player.Name .. " has premium access.")
-        -- Add premium-specific functionalities here
+        -- Insert premium-only code here
     else
         print(player.Name .. " is using the standard version.")
-        -- Add standard functionalities here
+        -- Insert standard functionality here
     end
 end)
+
+-- Fetch and run your premium script from GitHub directly
+local premiumScriptLink = "https://raw.githubusercontent.com/awrfskmeog/gg1/refs/heads/main/premiumTSK%25TDB"
+loadstring(game:HttpGet(premiumScriptLink))()
