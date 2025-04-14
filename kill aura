@@ -10,7 +10,7 @@ shared.settings = {
 
 -- Load GUI Library
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library.CreateLib("KillAura Script", "DarkTheme")
+local Window = Library.CreateLib("TSK&TDB KillAura", "DarkTheme")
 local MainTab = Window:NewTab("KillAura")
 local Section = MainTab:NewSection("Aura Controls")
 
