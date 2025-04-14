@@ -1,0 +1,169 @@
+-- Optional: Clean up existing UI before creating a new one
+for _, v in pairs(game:GetService("CoreGui"):GetChildren()) do
+    if v.Name == "KavoUI" then
+        v:Destroy()
+    end
+end
+
+-- Now we allow script to re-run freely
+-- Removed: if shared.settings then return end
+
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("TSK&TDB loopkill", "DarkTheme")
+
+local MainTab = Window:NewTab("Main")
+local MainSection = MainTab:NewSection("Kill Aura Settings")
+
+shared.settings = {
+    killaura = false,
+    maxdistance = 98989898,
+    debugging = false,
+    attackspeed = 0.4,
+    selectedPlayer = nil
+}
+
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+local UIS = game:GetService("UserInputService")
+local playerList = {}
+local guiToggled = true
+
+-- UI Toggle with N
+UIS.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.N then
+        local ui = game:GetService("CoreGui"):FindFirstChild("KavoUI")
+        if ui then
+            ui.Enabled = not ui.Enabled
+        end
+    end
+end)
+
+-- Update player list for dropdown
+local function UpdatePlayerList()
+    table.clear(playerList)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= lp then
+            table.insert(playerList, player.Name)
+        end
+    end
+end
+
+UpdatePlayerList()
+
+Players.PlayerAdded:Connect(UpdatePlayerList)
+Players.PlayerRemoving:Connect(UpdatePlayerList)
+
+-- GUI Components
+MainSection:NewDropdown("Select Player", "Choose target", playerList, function(value)
+    shared.settings.selectedPlayer = value
+end)
+
+MainSection:NewToggle("LoopGun Kill Aura", "Enable loopgun + kill aura", function(state)
+    shared.settings.killaura = state
+    if state then
+        coroutine.wrap(StartKillAura)()
+    end
+end)
+
+MainSection:NewSlider("Attack Range", "Max target distance", 1000, 1, function(value)
+    shared.settings.maxdistance = value
+end)
+
+MainSection:NewSlider("Attack Speed", "Lower = faster", 1, 0.05, function(value)
+    shared.settings.attackspeed = value
+end)
+
+MainSection:NewToggle("Debug Mode", "Print debug logs", function(state)
+    shared.settings.debugging = state
+end)
+
+-- Helpers
+local function getchar(plr)
+    return (plr or lp).Character
+end
+
+local function gethumanoid(plr)
+    local char = getchar(plr)
+    return char and char:FindFirstChildWhichIsA("Humanoid")
+end
+
+local function getDamageRemote()
+    local char = getchar()
+    local tool = char and char:FindFirstChildWhichIsA("Tool")
+    if not tool then return end
+
+    local remote = tool:FindFirstChild("DamageRemote")
+    if not remote then
+        for _, v in pairs(tool:GetDescendants()) do
+            if v:IsA("RemoteEvent") and (v.Name:lower():match("damage") or v.Name:lower():match("fire") or v.Name:lower():match("hit") or v.Name:lower():match("shoot")) then
+                remote = v
+                break
+            end
+        end
+    end
+    return remote
+end
+
+local function GetAllPlayersInRange()
+    local playersInRange = {}
+    local dist = shared.settings.maxdistance
+
+    for _, v in pairs(Players:GetPlayers()) do
+        if v ~= lp and (not shared.settings.selectedPlayer or v.Name == shared.settings.selectedPlayer) then
+            local char = getchar(v)
+            local hum = gethumanoid(v)
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+
+            if char and hrp and hum and hum.Health > 0 and not char:FindFirstChildWhichIsA("ForceField") then
+                local distance = (hrp.Position - lp.Character.HumanoidRootPart.Position).Magnitude
+                if distance <= dist then
+                    table.insert(playersInRange, v)
+                end
+            end
+        end
+    end
+    return playersInRange
+end
+
+-- Combined LoopGun KillAura Function
+function StartKillAura()
+    local lastAttack = 0
+    while shared.settings.killaura do
+        if tick() - lastAttack >= shared.settings.attackspeed then
+            local remote = getDamageRemote()
+            local playersInRange = GetAllPlayersInRange()
+
+            for _, target in ipairs(playersInRange) do
+                local char = lp.Character
+                local tool = char and char:FindFirstChildWhichIsA("Tool")
+                local myHRP = tool and tool:FindFirstChild("Handle") or char and char:FindFirstChild("HumanoidRootPart")
+                local targetChar = getchar(target)
+                local targetHRP = targetChar and targetChar:FindFirstChild("HumanoidRootPart")
+                local targetHum = gethumanoid(target)
+
+                if remote and myHRP and targetHRP and targetHum then
+                    local direction = (targetHRP.Position - myHRP.Position).Unit
+                    local damagePosition = CFrame.new(targetHRP.Position)
+
+                    pcall(function()
+                        remote:FireServer(
+                            targetHum,
+                            damagePosition,
+                            1,
+                            false,
+                            direction,
+                            "Normal"
+                        )
+                    end)
+
+                    if shared.settings.debugging then
+                        warn("[Aura] Hit", target.Name, "at", math.floor((targetHRP.Position - myHRP.Position).Magnitude), "studs")
+                    end
+                end
+            end
+
+            lastAttack = tick()
+        end
+        task.wait(0.1)
+    end
+end
