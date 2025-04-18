@@ -1,0 +1,159 @@
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local Header = Instance.new("TextLabel")
+local Button = Instance.new("TextButton")
+local DashButton = Instance.new("TextButton")
+local CloseButton = Instance.new("TextButton")
+local OpenButton = Instance.new("TextButton")
+
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+Frame.Parent = ScreenGui
+Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+Frame.BorderSizePixel = 0
+Frame.Position = UDim2.new(0.35, 0, 0.35, 0)
+Frame.Size = UDim2.new(0, 250, 0, 220)
+Frame.Active = true
+Frame.Draggable = true
+Frame.ClipsDescendants = true
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 15)
+UICorner.Parent = Frame
+
+local Shadow = Instance.new("ImageLabel")
+Shadow.Name = "Shadow"
+Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
+Shadow.BackgroundTransparency = 1
+Shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
+Shadow.Size = UDim2.new(1, 35, 1, 35)
+Shadow.ZIndex = -1
+Shadow.Image = "rbxassetid://6014257812"
+Shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+Shadow.ImageTransparency = 0.5
+Shadow.Parent = Frame
+
+Header.Parent = Frame
+Header.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+Header.BorderSizePixel = 0
+Header.Size = UDim2.new(1, 0, 0, 40)
+Header.Position = UDim2.new(0, 0, 0, 0)
+Header.Text = "Void Script"
+Header.TextColor3 = Color3.fromRGB(255, 255, 255)
+Header.Font = Enum.Font.GothamBlack
+Header.TextSize = 20
+
+CloseButton.Parent = Header
+CloseButton.BackgroundColor3 = Color3.fromRGB(220, 20, 60)
+CloseButton.Position = UDim2.new(0.9, 0, 0.1, 0)
+CloseButton.Size = UDim2.new(0, 20, 0, 20)
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.TextSize = 14
+
+local CloseButtonCorner = Instance.new("UICorner")
+CloseButtonCorner.CornerRadius = UDim.new(0, 5)
+CloseButtonCorner.Parent = CloseButton
+
+OpenButton.Parent = ScreenGui
+OpenButton.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+OpenButton.Position = UDim2.new(0, 10, 0.5, 0)
+OpenButton.Size = UDim2.new(0, 40, 0, 40)
+OpenButton.Text = ">"
+OpenButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+OpenButton.Font = Enum.Font.GothamBold
+OpenButton.TextSize = 18
+OpenButton.Visible = false
+
+local OpenButtonCorner = Instance.new("UICorner")
+OpenButtonCorner.CornerRadius = UDim.new(0, 10)
+OpenButtonCorner.Parent = OpenButton
+
+Button.Parent = Frame
+Button.BackgroundColor3 = Color3.fromRGB(65, 105, 225)
+Button.Position = UDim2.new(0.1, 0, 0.3, 10)
+Button.Size = UDim2.new(0.8, 0, 0, 50)
+Button.Text = "Void Player"
+Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+Button.Font = Enum.Font.GothamBold
+Button.TextSize = 18
+Button.AutoButtonColor = false
+
+local ButtonCorner = Instance.new("UICorner")
+ButtonCorner.CornerRadius = UDim.new(0, 10)
+ButtonCorner.Parent = Button
+
+DashButton.Parent = Frame
+DashButton.BackgroundColor3 = Color3.fromRGB(220, 20, 60)
+DashButton.Position = UDim2.new(0.1, 0, 0.65, 10)
+DashButton.Size = UDim2.new(0.8, 0, 0, 50)
+DashButton.Text = "Infinite Dash"
+DashButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+DashButton.Font = Enum.Font.GothamBold
+DashButton.TextSize = 18
+DashButton.AutoButtonColor = false
+
+local DashButtonCorner = Instance.new("UICorner")
+DashButtonCorner.CornerRadius = UDim.new(0, 10)
+DashButtonCorner.Parent = DashButton
+
+local function createButtonEffect(button)
+    local originalSize = button.Size
+    local originalPosition = button.Position
+    
+    button.MouseEnter:Connect(function()
+        game:GetService("TweenService"):Create(button, TweenInfo.new(0.3), {
+            Size = originalSize + UDim2.new(0, 4, 0, 4),
+            Position = originalPosition - UDim2.new(0, 2, 0, 2)
+        }):Play()
+    end)
+    
+    button.MouseLeave:Connect(function()
+        game:GetService("TweenService"):Create(button, TweenInfo.new(0.3), {
+            Size = originalSize,
+            Position = originalPosition
+        }):Play()
+    end)
+end
+
+createButtonEffect(Button)
+createButtonEffect(DashButton)
+
+CloseButton.MouseButton1Click:Connect(function()
+    Frame.Visible = false
+    OpenButton.Visible = true
+end)
+
+OpenButton.MouseButton1Click:Connect(function()
+    Frame.Visible = true
+    OpenButton.Visible = false
+end)
+
+local bool = true
+if bool then
+    game.Workspace.FallenPartsDestroyHeight = 0 / 0
+else
+    game.Workspace.FallenPartsDestroyHeight = -500
+end
+
+Button.MouseButton1Click:Connect(function()
+    local character = game.Players.LocalPlayer.Character
+    if character then
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+        local humanoid = character:FindFirstChild("Humanoid")
+        if humanoidRootPart and humanoid then
+            humanoidRootPart.CFrame = CFrame.new(0, -10000, 0)
+            wait(0.3)
+            humanoid.Health = 0
+        end
+    end
+end)
+
+DashButton.MouseButton1Click:Connect(function()
+    originalfunction = hookfunction(wait, function(seconds)
+        if seconds == 2 then return end
+        return originalfunction(seconds)
+    end)
+end)
